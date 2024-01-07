@@ -76,9 +76,7 @@ because RSV does not differentiate between different data types like boolean or 
 but instead has only string or null values.
 
 ```json
-...
 ["Tris", "0", "1", "2", "2", "3", "0"]
-...
 ```
 
 The interpretation of these values is up to the program,
