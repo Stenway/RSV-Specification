@@ -414,3 +414,13 @@ You can use RSV as an alternative to CSV or TSV. You can also use it as a binary
 to streaming oriented formats like [JSON lines](https://jsonlines.org/),
 where you could put multiple textual documents like JSON, YAML or XML documents
 into a single file. A simple configuration file would also be a use case.
+
+## Frequently Asked Questions (FAQ)
+
+### Why does RSV differentiate between empty strings and null values?
+
+### Why don't you use ASCII control characters like the record separator 0x1E?
+
+### Why is the null value byte terminated with a value terminator byte?
+
+### Why not simply use Parquet or MessagePack?
