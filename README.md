@@ -1,6 +1,6 @@
 # Rows of String Values (RSV Data Format) Specification
 
-The RSV data format is a simple binary alternative to CSV.
+The RSV data file format is a simple binary alternative to CSV.
 This document describes the data structure behind RSV and defines the encoding used.
 If you want to watch an explanation video about RSV, you can watch the following YouTube video:
 [RSV - Rows of String Values - A Simple Binary Alternative to CSV](https://www.youtube.com/watch?v=tb_70o6ohMA)
@@ -419,8 +419,204 @@ into a single file. A simple configuration file would also be a use case.
 
 ### Why does RSV differentiate between empty strings and null values?
 
+You can find that differentiation between empty strings and null values in SQL, Java and C# strings, and other places. JavaScript on top even has the undefined keyword. It might be arguable whether you need such a 
+differentiation in your specific use case. But because RSV is supposed to be as universal as possible,
+RSV does support the differentiation between empty strings and null values.
+
+Having to decide which one to pick over the other, would also be a hard task, because you have people,
+that like the empty string approach, and on the other hand there are people that like the null approach more.
+Forcing a null-approach-prefering person to use empty strings, and vice versa, certainly wouldn't help to gain adoption.
+
 ### Why don't you use ASCII control characters like the record separator 0x1E?
+
+ASCII offers multiple [control characters](https://en.wikipedia.org/wiki/ASCII#Control_characters) that 
+can be used to separate strings values, rows (a.k.a records), etc. from each other. The following four
+were especially made for such use cases:
+* File Separator (FS) = 0x1C
+* Group Separator (GS) = 0x1D
+* Record Separator (RS) = 0x1E
+* Unit Separator (US) = 0x1F
+
+An example usage is the use of the record separator in the
+[JSON text sequences](https://en.wikipedia.org/wiki/JSON_streaming#Record_separator-delimited_JSON) format
+([RFC 7464](https://datatracker.ietf.org/doc/html/rfc7464)).
+
+This approach follows the concept of looking at the values that need to be stored and deciding
+which characters they shouldn't contain. The control characters are non-printable characters and thus
+are likely to not be contained inside of the values. A similar approach is using a tab character
+as done with the TSV file format, but here it is more likely that a value might contain a tab character.
+Again this would depend on the data, that needs to be stored.
+
+These are valid approaches, especially like in the case of JSON text sequences, where it is guaranteed 
+by the definition of JSON, that a JSON document will never contain the record separator, because
+it must be escaped inside of a JSON string.
+
+But limiting the range of possible characters also means that the values need to be checked,
+if they really don't contain these special characters. If they are not checked and contain them,
+they will corrupt the resulting file, and this might introduce security problems.
+
+RSV is made to be as universal as possible, which means it does not limit the range of valid
+characters ([Unicode scalar values](https://www.unicode.org/glossary/#unicode_scalar_value))
+of string values. So the checking step can be avoided, because all 1,112,064 Unicode scalar values
+(U+0000..U+D7FF and U+E000..U+10FFFF) are allowed. This makes the RSV approach more robust.
+It also allows RSV documents to embed every kind of Unicode-based textual document format.
 
 ### Why is the null value byte terminated with a value terminator byte?
 
+Yes, the null value byte could theoretically stand on it's own and wouldn't need a value
+terminator byte. But this would sacrifice the option to use a split method, in order to
+decode an RSV document. And using a split method is something that is often
+associated with CSV documents. Although it is not the recommended way to decode
+an RSV document using split - because you would need to check the last value for emptyness
+and ignore it - it's still a valid method, which should not be sacrificed for
+such an optimization.
+
 ### Why not simply use Parquet or MessagePack?
+
+RSV is simply about simplicity, robustness and universality, and is meant to be a
+binary alternative to CSV. Of course there are sophisticated binary formats
+like Parquet, which are binary alternatives to CSV as well. But often there goal
+is to have better performance characteristics or file size advantages.
+This comes at the price of complexity.
+
+A [Parquet specification](https://github.com/apache/parquet-format) is not meant
+to be written on a coffee cup napkin, because it's a sophisticated format.
+Also the [MessagePack specification](https://github.com/msgpack/msgpack)
+has a certain complexity.
+
+RSV is not meant to replace these formats. RSV is just another addition
+to the spectrum of possible formats you can use. If another format better
+suits your use case or your requirements, then sure it's the better choice.
+
+Know your data structure, see how it maps onto the selected format, and know
+the advantages and limitations of the format. And if you are in a situation,
+where you only need a data structure like a CSV file (a jagged array of string values)
+then RSV might be the right fit for you.
+
+### But I need my files human-readable. Is RSV something for me?
+
+If you need a CSV-like format that's human-readable, and have the requirement
+to view and edit it in your text editor, then there are two good alternatives
+you could use. [WSV](https://www.whitespacesv.com) (Whitespace Separated Values)
+or [TBL](https://www.youtube.com/watch?v=mGUlW6YgHjE), which is based on [SML](https://www.simpleml.com)
+(Simple Markup Language) which have a special focus on human-readability,
+while solving many problems of CSV.
+
+### Do I need any dependencies to use RSV in my project?
+
+No. RSV is so simple, that you could directly copy the code snippets from the
+[RSV-Challenge repository](https://github.com/Stenway/RSV-Challenge) into your projects.
+An RSV decoder in Python for example only takes 9 lines. The repository also uses
+an [MIT-0 license](https://opensource.org/license/mit-0/), so you don't need to worry
+about attribution.
+
+### How did you choose the special bytes?
+
+With C you've got [null-terminated strings](https://en.wikipedia.org/wiki/Null-terminated_string).
+RSV has kind of "inverse-null"-terminated strings, and thus the 0xFF byte is used as value
+terminator byte.
+
+The next thing to define would be the null value, because the format represents an
+array of arrays of nullable strings. Thus the 0xFE byte is used as null value byte.
+
+What now remains is defining the end of a row. Therefor the 0xFD byte is used as row terminator byte.
+
+### Is this format really binary, if only strings are stored?
+
+Yes it is a binary format. All files are essentially binary files
+(see [this video](https://www.youtube.com/watch?v=VgVkod9HQTo)), which means an array of bytes.
+When a file follows a certain text encoding convention, and thus becomes "readable" with a text editor,
+it will be considered to be a "text file". Everything that looks scrambled
+inside of a text editor, or does display cryptic symbols, is usually considered to
+be a binary file.
+
+RSV is a binary format, because it does not follow any text encoding convention.
+It's not a valid UTF-8 document, neither is it a UTF-16 or UTF-32 encoded document.
+It's not an ASCII document, because it uses bytes outside of the range of 0 to 127.
+It's not an extended ASCII document and does not have an 8-bit charset associated,
+because "characters" in string values can take up to 4 bytes to be encoded.
+And it does not follow any other multi-byte encoding scheme like Shift-JIS.
+
+It uses special bytes and the decoding process is performed on byte-level,
+not character-level.
+
+### Does RSV support other text encoding schemes like UTF-16 or UTF-32?
+
+No. RSV only supports UTF-8. In order to support other text encodings, an indicator would
+be required, that defines which encoding was used, either globally or on a per-value level.
+This would make the format more complex, and would increase the file size.
+On the other hand, not using such an indicator and trying to detect the used encoding
+would have performance impacts and could reduce the reliability. 
+
+With RSV you also don't need to worry about endianess. This is because
+UTF-8 has always the [same byte order](https://unicode.org/faq/utf_bom.html#bom5).
+Using UTF-16 or UTF-32 would require to handle the little- or big-endian cases.
+
+Other reasons for the use of UTF-8 can 
+https://utf8everywhere.org/
+
+### ChatGPT doesn't know about RSV yet. Now what?
+
+Please wait for the next version of your AI tool. When RSV gains enough adoption,
+it will most certainly be added.
+
+### How will RSV gain adoption?
+
+Hopefully because of it's simplicity. It's so easy, that the threshold of
+writing code for a programming language, or special tools/importers/exporters
+should be low enough.
+
+It is also actually a very good starting point, to learn a programming language.
+You have to get to know basic knowledge about bytes, strings, file IO, and more,
+which is well suited for beginners and experts alike.
+
+The [RSV-Challenge repository](https://github.com/Stenway/RSV-Challenge) already offers implementations for: Beef, C, C++, C#, Cobol, D, Dart, Fortran, Go, Groovy, Java, JavaScript, Julia, Kotlin, Lazarus Pascal, Lua, Nim, Octave, Odin, PHP, Perl, Python, R, Ruby, Rust, Scala, Swift, TypeScript, V, VB.NET, Zig and more to come.
+And with your help this list can grow even further.
+
+### Didn't RSV just prove that XDCD Standards comic?
+
+Well, that [particular comic](https://xkcd.com/927/) says:
+
+> _"We need to develop one universal standard that covers everyone's uses cases."_
+
+RSV does not claim to cover everyone's use cases. It just claims
+to be a simple binary alternative to CSV. And that it is.
+So no, it does not prove that comic.
+
+RSV is just an addition to the possible range of formats, you have at your disposal,
+to solve your everyday data format related problems. It fills a hole that
+was missing between the two sides: text-based formats and more complex binary formats.
+It's like a hybrid car. It's not a [traditional gasoline-powered car](https://unsplash.com/photos/red-vintage-truck-on-green-grass-field-during-daytime-6FFbl8hukeo),
+nor is it a full electronic car like a Tesla (Parquet), but instead something
+like a Toyota Prius.
+
+### I really don't like that approach. What should I do?
+
+Sorry to hear that. It's essentially just three bytes mixed with a bit of UTF-8 encoding,
+so theoretically nothing to get bad feelings about. But if it helps,
+you can post a comment under the [RSV YouTube video](https://www.youtube.com/watch?v=tb_70o6ohMA),
+detailling what you don't like about it.
+
+### I really like RSV. What can I do to help?
+
+Glad to hear, and thanks for your interest in helping. Probably the best thing you can do
+is spread the word, so that people know about this format, and know that it's a viable option.
+Sharing the [RSV YouTube video](https://www.youtube.com/watch?v=tb_70o6ohMA) would be a start,
+for example by posting it on Twitter, other social networks, or blogs. Also contacting famous YouTubers,
+and asking them if they could make a video about RSV would be a great idea. Leaving comments
+on [StackOverflow](https://stackoverflow.com/questions/31498015/binary-version-of-csv) mentioning RSV
+as a simple binary alternative to CSV, would also be an option.
+
+And if you want to do some actual coding, you could join the
+[RSV-Challenge](https://github.com/Stenway/RSV-Challenge) and port it to another programming language,
+which is not available yet. You can start by checking out the repository's 
+[issues tracker](https://github.com/Stenway/RSV-Challenge/issues).
+If you have the ability to write some importer/exporter plugins for spreadsheet software
+or other editors like VS Code, this would be highly appreciated as well.
+
+If you are author at a classic print magazine or are writing for an online magazine,
+consider sharing your knowledge about RSV by writing an article about it.
+And if you are a teacher at a school or university, maybe RSV would be something
+for your students.
+
+The most important part is, let the RSV community know about it, and don't forget: Have fun with the format!
