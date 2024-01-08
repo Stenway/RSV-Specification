@@ -400,6 +400,15 @@ loaded = load_rsv("Example.rsv")
 print(loaded) 
 ```
 
+### Strict UTF-8 Encoding and Decoding
+
+An important property of RSV is, that the encoding and decoding of UTF-8 strings must be strict.
+This means, if invalid input is encountered, an error must be thrown. This means for example,
+that the encoding of invalid surrogate codepoints is not allowed. It also means that the UTF-8
+decoder must throw an error, if invalid UTF-8 bytes or sequences are encountered. These must not
+be ignored or be replaced by replacement characters like '�' or '?'.
+
+
 ### RSV-Challenge Repository
 
 If you wanna try out RSV then you can checkout the [RSV-Challenge repository](https://github.com/Stenway/RSV-Challenge), where you can find the basic encoding and decoding functions,
@@ -554,6 +563,12 @@ Using UTF-16 or UTF-32 would require to handle the little- or big-endian cases.
 
 Other reasons for the use of UTF-8 can 
 https://utf8everywhere.org/
+
+### Can I use a split function to decode RSV?
+
+Yes you can. See for example the [Python](https://github.com/Stenway/RSV-Challenge/blob/main/Python/rsv.py#L70),
+[Go](https://github.com/Stenway/RSV-Challenge/blob/main/Go/rsv.go#L143),
+or [C#](https://github.com/Stenway/RSV-Challenge/blob/main/CS/Rsv.cs#L96) implementations.
 
 ### ChatGPT doesn't know about RSV yet. Now what?
 
