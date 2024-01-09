@@ -570,6 +570,13 @@ Yes you can. See for example the [Python](https://github.com/Stenway/RSV-Challen
 [Go](https://github.com/Stenway/RSV-Challenge/blob/main/Go/rsv.go#L143),
 or [C#](https://github.com/Stenway/RSV-Challenge/blob/main/CS/Rsv.cs#L96) implementations.
 
+### Can I validate an RSV document?
+
+Yes, that's pretty easy. You just need two small lookup tables for that
+and a method, that iterates over the bytes. See the Python implementation
+[here](https://github.com/Stenway/RSV-Challenge/blob/main/Python/rsv.py#L94).
+The RSV validator is just an extended [DFA](https://en.wikipedia.org/wiki/Deterministic_finite_automaton)-based UTF-8 validator.
+
 ### ChatGPT doesn't know about RSV yet. Now what?
 
 Please wait for the next version of your AI tool. When RSV gains enough adoption,
