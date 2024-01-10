@@ -424,6 +424,12 @@ to streaming oriented formats like [JSON lines](https://jsonlines.org/),
 where you could put multiple textual documents like JSON, YAML or XML documents
 into a single file. A simple configuration file would also be a use case.
 
+## Summary
+
+The following picture shows the most important aspects of the RSV specification written on a napkin:
+
+![RSV specification on napkin](RSV_Specification_on_Napkin.jpg)
+
 ## Frequently Asked Questions (FAQ)
 
 ### Why does RSV differentiate between empty strings and null values?
