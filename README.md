@@ -632,8 +632,7 @@ is spread the word, so that people know about this format, and know that it's a 
 Sharing the [RSV YouTube video](https://www.youtube.com/watch?v=tb_70o6ohMA) would be a start,
 for example by posting it on Twitter, other social networks, or blogs. Also contacting famous YouTubers,
 and asking them if they could make a video about RSV would be a great idea. Leaving comments
-on [StackOverflow](https://stackoverflow.com/questions/31498015/binary-version-of-csv) mentioning RSV
-as a simple binary alternative to CSV, would also be an option.
+on StackOverflow mentioning RSV as a simple binary alternative to CSV, would also be an option.
 
 And if you want to do some actual coding, you could join the
 [RSV-Challenge](https://github.com/Stenway/RSV-Challenge) and port it to another programming language,
