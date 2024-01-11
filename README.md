@@ -570,6 +570,28 @@ Using UTF-16 or UTF-32 would require to handle the little- or big-endian cases.
 Other reasons for the use of UTF-8 can 
 https://utf8everywhere.org/
 
+### I mainly want to store numbers. Is RSV something for me?
+
+It depends. If you want to exchange numerical data, and performance is not critical, then you can use RSV.
+If performance is important, or you want to store numbers with many digits and size matters,
+then there are more adequate solutions for such use cases. Storing numbers in binary form, instead of
+the string-based form, has better performance and can reduce the resulting file size.
+But doing so also means to think about the byte order, i.e. the endianness (big endian or little endian),
+about precision (1/2/4/8-byte integers signed/unsigned, or floating-point numbers),
+or about variable-width encoding schemes (varints).
+
+RSV only supports strings, in order to make the format as simple as possible. When you
+store your numerical data as strings, you don't need to think about endianness, precision or variable-width
+encoding schemes. This makes RSV especially beginner-friendly. Using normal compression like ZIP can also
+reduce the file size significantly.
+
+### What happens, when my string values contains 0xFF? Will it collide?
+
+No, it won't collide with the value terminator byte, because the Unicode codepoint U+00FF will not
+encode as a single 0xFF byte. With the UTF-8 encoding only the ASCII characters from 0 to 127 will be encoded
+using one single byte. Codepoints in the range of U+0080 to U+07FF will be mapped to two bytes.
+U+00FF for example will map to the two bytes 0xC3 and 0xBF.
+
 ### Can I use a split function to decode RSV?
 
 Yes you can. See for example the [Python](https://github.com/Stenway/RSV-Challenge/blob/main/Python/rsv.py#L70),
