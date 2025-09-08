@@ -508,15 +508,6 @@ the advantages and limitations of the format. And if you are in a situation,
 where you only need a data structure like a CSV file (a jagged array of string values)
 then RSV might be the right fit for you.
 
-### But I need my files human-readable. Is RSV something for me?
-
-If you need a CSV-like format that's human-readable, and have the requirement
-to view and edit it in your text editor, then there are two good alternatives
-you could use. [WSV](https://www.whitespacesv.com) (Whitespace Separated Values)
-or [TBL](https://www.youtube.com/watch?v=mGUlW6YgHjE), which is based on [SML](https://www.simpleml.com)
-(Simple Markup Language) which have a special focus on human-readability,
-while solving many problems of CSV.
-
 ### Do I need any dependencies to use RSV in my project?
 
 No. RSV is so simple, that you could directly copy the code snippets from the
